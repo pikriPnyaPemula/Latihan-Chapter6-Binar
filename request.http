@@ -1,0 +1,32 @@
+### Register
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "email":"anissa@gmail.com",
+    "password":"anissa123"
+}
+
+### Login
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "anissa@gmail.com",
+    "password":"anissa123"
+}
+
+### Who Am I
+GET http://localhost:3000/api/v1/auth/whoami
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiaWF0IjoxNjk4Mzk2ODcwfQ.F2yYpVL7tA9v4f5WUTkfKzlBvG7Y_1RfbY9Qgep9Pbs
+
+### Update Profile
+POST http://localhost:3000/api/v1/auth/updateprofile
+Content-Type: multipart/form-data
+
+{
+    "first_name": "",
+    "last_name": "",
+    "birth_date": "",
+    "profile_picture": ""
+}
