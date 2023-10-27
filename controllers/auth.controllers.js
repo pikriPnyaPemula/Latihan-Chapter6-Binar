@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {JWT_SECRET_KEY} = process.env;
 const imagekit = require('../libs/imagekit');
+const path = require('path');
 
 module.exports = {
     register: async (req, res, next) =>{
@@ -86,7 +87,6 @@ module.exports = {
                 data: {
                     first_name: userProfile.first_name,
                     last_name: userProfile.last_name,
-                    email: user.email,
                     birth_date: userProfile.birth_date,
                     profile_picture: userProfile.profile_picture
                 }
@@ -100,7 +100,7 @@ module.exports = {
         try{
             let {id} = req.params;
             let {first_name, last_name, birth_date} = req.body;
-
+            
             const userExist = await prisma.user.findUnique({
                 where: {
                     id: Number(id),
@@ -122,11 +122,10 @@ module.exports = {
                 file: strFile
             });
 
-
-
-            let updateOperation = await prisma.userProfile.update({
+            let updateOperation = await prisma.userProfile.upsert({
                 where: {user_id: Number(id)},
-                data: {first_name, last_name, birth_date, profile_picture: url}
+                update: {first_name, last_name, birth_date, profile_picture: url},
+                create: {user_id : Number(id), first_name, last_name, birth_date, profile_picture: url}
             });
 
             res.status(200).json({

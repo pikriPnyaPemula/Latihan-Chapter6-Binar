@@ -6,6 +6,6 @@ const {image} = require('../libs/multer');
 router.post('/register', register);
 router.post('/login', login);
 router.get('/whoami', restrict, whoami);
-router.post('/updateprofile', image.single('image'), updateProfile);
+router.put('/updateprofile/:id', image.single('image'), updateProfile);
 
 module.exports = router;
