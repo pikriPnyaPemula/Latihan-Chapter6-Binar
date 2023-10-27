@@ -10,8 +10,5 @@ app.use(express.json());
 const authRouter = require('./routes/auth.routes');
 app.use('/api/v1/auth', authRouter);
 
-// const mediaRouter = require('ALAMAT ROUTER MEDIA');
-// app.use('api/v1/', mediaRouter);
-
 app.listen(PORT, ()=> console.log('Listening on Port', PORT));
 

@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {JWT_SECRET_KEY} = process.env;
+const imagekit = require('../libs/imagekit');
 
 module.exports = {
     register: async (req, res, next) =>{
@@ -75,21 +76,36 @@ module.exports = {
         }
     },
 
-    whoami: (req, res, next) =>{
-        return res.status(200).json({
-            status: true,
-            message: 'OK',
-            err: null,
-            data: {user: req.user}
-        });
+    whoami: async (req, res, next) =>{
+        try{
+            const userProfile = await prisma.userProfile.findUnique({where: {user_id: req.user.id}});
+            return res.status(200).json({
+                status: true,
+                message: 'OK',
+                err: null,
+                data: {
+                    first_name: userProfile.first_name,
+                    last_name: userProfile.last_name,
+                    email: user.email,
+                    birth_date: userProfile.birth_date,
+                    profile_picture: userProfile.profile_picture
+                }
+            });
+        } catch(err){
+            next(err);
+        }
     },
 
     updateProfile: async(req, res, next)=>{
         try{
             let {id} = req.params;
-            let {first_name, last_name, birth_date, profile_picture} = req.body;
+            let {first_name, last_name, birth_date} = req.body;
 
-            const userExist = await prisma.userProfile.findUnique({where: {user_id: Number(id)}});
+            const userExist = await prisma.user.findUnique({
+                where: {
+                    id: Number(id),
+                },
+            });
             if(!userExist){
                 res.status(400).json({
                     status: true,
@@ -99,16 +115,31 @@ module.exports = {
                 })
             }
 
+            let strFile = req.file.buffer.toString('base64');
+
+            let {url} = await imagekit.upload({
+                fileName: Date.now() + path.extname(req.file.originalname),
+                file: strFile
+            });
+
+
+
             let updateOperation = await prisma.userProfile.update({
-                where: {id: Number(id)},
-                data: {first_name, last_name, birth_date, profile_picture}
+                where: {user_id: Number(id)},
+                data: {first_name, last_name, birth_date, profile_picture: url}
             });
 
             res.status(200).json({
                 status: true,
                 message: 'OK',
                 error: null,
-                data: updateOperation
+                data: {
+                    file_url: url,
+                    first_name,
+                    last_name,
+                    birth_date,
+                    updateOperation
+                }
             })
         } catch(err){
             next(err);
